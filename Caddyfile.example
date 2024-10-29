@@ -1,0 +1,6 @@
+dashproposal.example.com {
+	handle /* {
+		root * /home/app/srv/DashProposal/
+        file_server
+	}
+}

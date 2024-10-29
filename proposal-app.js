@@ -161,9 +161,11 @@ ProposalApp.$restore = async function () {
   let burnAddr = await DashKeys.wifToAddr(oldWif, {
     version: ProposalApp.network,
   });
+  //@ts-expect-error
+  document.querySelector("[data-id=burnAddr]").textContent = burnAddr;
 
-  let qr = new QRCode({
-    content: `dash:${burnAddr}?amount=1.00000200`,
+  let addrQr = new QRCode({
+    content: `dash:${burnAddr}?amount=1.00000250`,
     padding: 4,
     width: 256,
     height: 256,
@@ -171,9 +173,9 @@ ProposalApp.$restore = async function () {
     background: "#ffffff",
     ecl: "M",
   });
-  let svg = qr.svg();
+  let addrSvg = addrQr.svg();
   //@ts-expect-error
-  document.querySelector("[data-id=addressQr").innerHTML = svg;
+  document.querySelector("[data-id=addressQr").innerHTML = addrSvg;
 
   dbSet(`wif-${ProposalApp.network}-${burnAddr}`, oldWif);
   //@ts-expect-error
@@ -359,8 +361,8 @@ ProposalApp.$checkBalance = async function () {
     return;
   }
 
-  let qr = new QRCode({
-    content: `dash:${burnAddr}?amount=1.00000200`,
+  let addrQr = new QRCode({
+    content: `dash:${burnAddr}?amount=1.00000250`,
     padding: 4,
     width: 256,
     height: 256,
@@ -368,9 +370,22 @@ ProposalApp.$checkBalance = async function () {
     background: "#ffffff",
     ecl: "M",
   });
-  let svg = qr.svg();
+  let addrSvg = addrQr.svg();
   //@ts-expect-error
-  document.querySelector("[data-id=addressQr").innerHTML = svg;
+  document.querySelector("[data-id=addressQr").innerHTML = addrSvg;
+
+  let sweepQr = new QRCode({
+    content: `dash:${proposal.wif}`,
+    padding: 4,
+    width: 384,
+    height: 384,
+    color: "#000000",
+    background: "#ffffff",
+    ecl: "M",
+  });
+  let sweepSvg = sweepQr.svg();
+  //@ts-expect-error
+  document.querySelector("[data-id=sweepQr").innerHTML = sweepSvg;
 
   if (ProposalApp.utxos?.[0]?.satoshis) {
     //@ts-expect-error
@@ -976,8 +991,8 @@ ProposalApp.draft = async function ({
   if (sats >= 100100000) {
     throw new Error("refusing to burn > 1.001 DASH");
   }
-  if (sats < 100000193) {
-    throw new Error("need at least 1.000 DASH + 193 dust for fee");
+  if (sats < 100000250) {
+    throw new Error("need at least 1.000 DASH + 250 dust for fee");
   }
 
   let gobjData = DashGov.proposal.draftJson(selection, {

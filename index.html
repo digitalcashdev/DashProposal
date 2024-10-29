@@ -319,7 +319,7 @@
           <hr />
           <label
             >Paste pre-loaded "Collateral" WIF (to burn)
-            <small>1.000 DASH + 0.00000193 (fee)</small>
+            <small>1.000 DASH + 0.00000250 (fee)</small>
             <input
               type="text"
               autocomplete="new-password"
@@ -336,13 +336,33 @@
               "
             />
           </label>
+          <dialog>
+            <div data-id="sweepQr" style="height: 400px">&nbsp;</div>
+            <br /><small
+              ><button
+                type="button"
+                onclick="document.querySelector('dialog').close();"
+              >
+                Done
+              </button></small
+            >
+          </dialog>
           <label
             >Or scan to Pay
+            <small data-id="burnAddr">&nbsp;</small>
             <div data-id="addressQr" style="height: 262px"></div>
           </label>
           <small
             ><button type="button" onclick="ProposalApp.$checkBalance();">
               Check Balance
+            </button></small
+          >
+          <small
+            ><button
+              type="button"
+              onclick="document.querySelector('dialog').showModal();"
+            >
+              Sweep Balance
             </button></small
           >
           <details>

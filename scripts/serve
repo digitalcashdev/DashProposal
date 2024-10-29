@@ -1,0 +1,46 @@
+#!/bin/sh
+# shellcheck disable=SC1090
+set -e
+set -u
+
+fn_caddy_install() { (
+    if command -v caddy > /dev/null; then
+        return
+    fi
+
+    curl -sS https://webi.sh/caddy | sh
+); }
+
+fn_caddy_checkconfig() { (
+    if ! command -v caddy > /dev/null; then
+        . ~/.config/envman/PATH.env
+    fi
+
+    caddy fmt --overwrite ./Caddyfile
+); }
+
+fn_prettyprint_host_delayed() { (
+    sleep 0.35
+    BOLD='\033[1m'
+    CYAN='\033[36m'
+    YELLOW='\033[33m'
+    GREEN='\033[32m'
+    RESET='\033[0m'
+    DIM='\033[2m'
+
+    # shellcheck disable=SC2059
+    printf "\n${BOLD}${CYAN}Serving as ${YELLOW}https://local.proposals.digitalcash.dev${RESET} (${DIM}${GREEN}localhost${RESET}) ...\n\n"
+); }
+
+fn_caddy_run() { (
+    if ! command -v caddy > /dev/null; then
+        . ~/.config/envman/PATH.env
+    fi
+
+    caddy run --config ./Caddyfile --adapter caddyfile
+); }
+
+fn_caddy_install
+fn_caddy_checkconfig
+fn_prettyprint_host_delayed &
+fn_caddy_run

@@ -1,0 +1,7 @@
+local.proposals.digitalcash.dev local.digitalcash.dev localhost {
+	tls internal
+	handle /* {
+		root * ./
+		file_server
+	}
+}

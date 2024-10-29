@@ -386,6 +386,8 @@ ProposalApp.$checkBalance = async function () {
   let sweepSvg = sweepQr.svg();
   //@ts-expect-error
   document.querySelector("[data-id=sweepQr").innerHTML = sweepSvg;
+  //@ts-expect-error
+  document.querySelector("[data-id=sweepWif").textContent = proposal.wif;
 
   if (ProposalApp.utxos?.[0]?.satoshis) {
     //@ts-expect-error

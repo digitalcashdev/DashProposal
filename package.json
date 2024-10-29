@@ -1,0 +1,56 @@
+{
+  "name": "dashproposal-ui",
+  "version": "1.0.0",
+  "description": "A fully Web-based tool for submitting project proposals to the Digital Cash network.",
+  "main": "./proposal-app.js",
+  "type": "module",
+  "bin": {
+    "dashproposal": "./bin/proposal.js"
+  },
+  "files": [
+    "./bin/proposal.js",
+    "./index.html",
+    "./mvp.css",
+    "./proposal.js"
+  ],
+  "scripts": {
+    "bump": "npm version -m \"chore(release): bump to v%s\"",
+    "fmt": "npm run prettier",
+    "lint": "npm run jshint && npm run tsc",
+    "test": "node ./tests/",
+    "--------": "-------------------------------------------------",
+    "jshint": "npx -p jshint@2.x -- jshint -c ./.jshintrc ./*.js",
+    "prettier": "npx -p prettier@3.x -- prettier -w '**/*.{js,md}'",
+    "tsc": "! npx -p typescript@5.x -- tsc -p ./jsconfig.json | grep '\\.js(\\d\\+,\\d\\+): error' | grep -v '\\<node_modules/'",
+    "---------": "------------------------------------------------",
+    "reexport-types": "npx -p jswt@1.x -- reexport",
+    "prepublish": "npm run reexport-types"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dashhive/DashGov.js.git"
+  },
+  "keywords": [
+    "DASH",
+    "proposal",
+    "submission",
+    "signing"
+  ],
+  "author": "AJ ONeal <aj@therootcompany.com> (https://therootcompany.com/)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/digitalcashdev/DashProposal/issues"
+  },
+  "homepage": "https://github.com/digitalcashdev/DashProposal#readme",
+  "dependencies": {
+    "@dashincubator/secp256k1": "^1.7.1-5",
+    "dashgov": "^1.0.0",
+    "dashkeys": "^1.1.5",
+    "dashtx": "^0.20.1",
+    "dotenv": "^16.4.5",
+    "qrcode-svg": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.1.0"
+  }
+}

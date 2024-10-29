@@ -1,6 +1,10 @@
 dashproposal.example.com {
+	handle /api/* {
+		reverse_proxy localhost:3000
+	}
+
 	handle /* {
 		root * /home/app/srv/DashProposal/
-        file_server
+		file_server
 	}
 }

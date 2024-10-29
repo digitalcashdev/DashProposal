@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make Proposal - Digital Cash</title>
+    <link rel="stylesheet" href="./mvp.css" />
+    <script src="./node_modules/@dashincubator/secp256k1/secp256k1.js"></script>
+    <script src="./node_modules/dashkeys/dashkeys.js"></script>
+    <script src="./node_modules/dashtx/dashtx.js"></script>
+    <script src="./node_modules/qrcode-svg/dist/qrcode.min.js"></script>
+    <style>
+      nav {
+        margin-bottom: 0.3rem;
+      }
+      header {
+        padding-top: 0;
+        padding-bottom: 0.3rem;
+      }
+      header nav img {
+        margin: 0;
+      }
+      main {
+        padding-top: 0;
+      }
+      input[type="url"],
+      input[type="password"] {
+        width: calc(100% - 1.6rem);
+      }
+      form {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      hr,
+      footer hr {
+        margin-top: 1.2rem;
+        margin-bottom: 1.2rem;
+      }
+      footer {
+        padding: 1rem;
+      }
+      pre {
+        margin: 0;
+        padding: 0;
+      }
+      pre code {
+        margin: 0;
+        padding: 0.3rem 1rem 0.3rem 1rem;
+      }
+      code {
+        margin: 0.1rem;
+        padding: 0rem 0.3rem 0rem 0.3rem;
+      }
+      small button {
+        font-size: 0.75rem;
+        margin: 0;
+        padding: 0.2rem;
+      }
+      fieldset {
+        border-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      fieldset label,
+      fieldset button {
+        display: inline-block;
+      }
+
+      input {
+        transition: color 0.25s ease;
+      }
+      input::placeholder {
+        transition: color 0.25s ease;
+        color: rgba(0, 0, 0, 0.25);
+      }
+      input:focus::placeholder {
+        transition: color 0.25s ease;
+        color: rgba(0, 0, 0, 0.1);
+      }
+    </style>
+    <style>
+      .table-container {
+        font-size: 0.75rem;
+        overflow-y: scroll;
+        scrollbar-width: auto;
+        scrollbar-color: var(--color-scrollbar);
+        height: 100px; /* Set the desired height */
+        height: 15.3rem;
+        width: 100%;
+        max-width: var(--width-card-wide);
+        resize: vertical;
+
+        table {
+          display: table;
+          box-sizing: border-box;
+          border-collapse: collapse;
+          width: 100%;
+          max-width: var(--width-card-wide);
+        }
+        th {
+          background-color: var(--color-table);
+          position: sticky;
+          top: 0; /* Don't forget this, required for the stickiness */
+        }
+        tr {
+          font-family: Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono",
+            monospace;
+        }
+        tr:nth-child(odd) {
+          background-color: #fafafa;
+        }
+        tr.selected {
+          box-shadow: inset 0.3em 0 0 #4caf50; /* Green accent */
+          background-color: #f0fff4; /* Light green background */
+          /* box-shadow: inset 0.3em 0 0 #0077cc; /* Blue accent */
+          /* background-color: #f0faff; /* Light blue background */
+        }
+
+        .lameduck {
+          border-left: 5px solid #ff9800; /* Amber color */
+          background-color: #fffaf0;
+          /* color: #5d4037; */
+        }
+      }
+    </style>
+  </head>
+
+  <body hidden="hidden">
+    <header>
+      <nav>
+        <a href="./"
+          ><img
+            alt="Digital Cash . dev"
+            src="https://github.com/user-attachments/assets/08cdbc66-58d7-4cc4-8cc2-a246b28cb0e2"
+            height="96"
+        /></a>
+        <h1>Submit Digital Cash Proposal</h1>
+        <ul>
+          <li data-network="testnet">
+            <a
+              href="http://faucet.test.dash.crowdnode.io/"
+              target="_blank"
+              title="CrowdNode Faucet"
+              >CN 💸</a
+            >
+          </li>
+          <li data-network="testnet">
+            <a
+              href="http://faucet.testnet.networks.dash.org"
+              target="_blank"
+              title="Dash Core Group Faucet"
+              >DCG 💸</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/digitalcashdev/DashProposal/issues"
+              target="_blank"
+              title="Git Issues"
+              >Bugs 🐛</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/digitalcashdev/DashProposal.git"
+              target="_blank"
+              title="Git Source"
+              >Git 📦</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Submit After</th>
+                <th>Vote Deadline</th>
+                <th>Pay Date</th>
+              </tr>
+            </thead>
+            <tbody data-id="dates"></tbody>
+          </table>
+        </div>
+        <template data-id="dates-tmpl">
+          <tr>
+            <td data-name="index">1</td>
+            <td data-name="start">1/1/2024, 12:00:00 AM</td>
+            <td data-name="vote">1/30/2024, 12:00:00 AM</td>
+            <td data-name="payment">2/2/2024, 12:00:00 AM</td>
+          </tr>
+        </template>
+      </section>
+      <hr />
+      <section>
+        <form id="proposal-form" onsubmit="ProposalApp.$submit(window.event)">
+          <fieldset>
+            <label
+              >Start Period
+              <small>offset</small>
+              <input
+                name="index"
+                type="number"
+                min="0"
+                step="1"
+                value="1"
+                placeholder="ex: 1"
+                required
+                onkeyup="
+                  ProposalApp.$total();
+                "
+                onchange="
+                  ProposalApp.$total();
+                "
+              />
+            </label>
+            <label
+              ># of Payments
+              <small>superblocks</small>
+              <input
+                name="count"
+                type="number"
+                min="1"
+                step="1"
+                value="3"
+                placeholder="ex: 3"
+                required
+                onkeyup="
+                  ProposalApp.$total();
+                "
+                onchange="
+                  ProposalApp.$total();
+                "
+              />
+            </label>
+            <label
+              >Payment Amount
+              <small>whole DASH</small>
+              <input
+                name="paymentAmount"
+                type="number"
+                min="1"
+                step="1"
+                value="1"
+                placeholder="ex: 5"
+                required
+                onkeyup="
+                  ProposalApp.$total();
+                "
+                onchange="
+                  ProposalApp.$total();
+                "
+              />
+            </label>
+          </fieldset>
+          <label
+            >DASH Total <small>(if all votes pass)</small>
+            <pre><code data-id="total">&nbsp;</code></pre>
+          </label>
+          <hr />
+          <label
+            >Proposal Name
+            <small>url-safe ascii</small>
+            <input
+              type="text"
+              name="proposalName"
+              placeholder="ex: My-Group_My-Project_2024-Q1"
+              required
+              onkeyup="
+                ProposalApp.$draftJSON();
+              "
+              onchange="
+                ProposalApp.$draftJSON();
+              "
+            />
+          </label>
+          <label
+            >Proposal URL
+            <small>post, website, gist, blog or whatever</small>
+            <input
+              type="url"
+              name="proposalUrl"
+              placeholder="ex: https://www.dashcentral.org/p/my-group-my-project-2024-q1"
+              required
+              onkeyup="
+                ProposalApp.$draftJSON();
+              "
+              onchange="
+                ProposalApp.$draftJSON();
+              "
+            />
+          </label>
+          <label
+            >Payment Address
+            <small>reused for each payment</small>
+            <input
+              type="text"
+              name="paymentAddress"
+              placeholder="ex: XyBmeuLa8y3D3XmzPvCTj5PVh7WvMPkLn1"
+              required
+              onkeyup="
+                ProposalApp.$draftJSON();
+              "
+              onchange="
+                ProposalApp.$draftJSON();
+              "
+            />
+          </label>
+          <details>
+            <summary>
+              Proposal JSON <small data-id="epochs">&nbsp;</small>
+            </summary>
+            <pre><code data-id="json">&nbsp;</code></pre>
+          </details>
+          <hr />
+          <label
+            >Paste pre-loaded "Collateral" WIF (to burn)
+            <small>1.000 DASH + 0.00000193 (fee)</small>
+            <input
+              type="text"
+              autocomplete="new-password"
+              name="burnWif"
+              placeholder="ex: XK5DHnAiSj6HQNsNcDkawd9qdp8UFMdYftdVZFuRreTMJtbJhk8i"
+              required
+              onkeyup="
+                ProposalApp.$draftJSON();
+                ProposalApp.$checkBalance();
+              "
+              onchange="
+                ProposalApp.$draftJSON();
+                ProposalApp.$checkBalance();
+              "
+            />
+          </label>
+          <label
+            >Or scan to Pay
+            <div data-id="addressQr" style="height: 262px"></div>
+          </label>
+          <small
+            ><button type="button" onclick="ProposalApp.$checkBalance();">
+              Check Balance
+            </button></small
+          >
+          <details>
+            <summary>
+              WIF Info
+              <small data-id="wiftotal">&nbsp;</small>
+            </summary>
+            <pre><code data-id="wifinfo">&nbsp;</code></pre>
+          </details>
+          <br />
+          <fieldset>
+            <button name="preview" value="preview">Preview</button>
+            <button name="submit" value="submit">Submit Proposal</button>
+          </fieldset>
+          <label data-id="log" hidden
+            >Submission Log
+            <pre data-id="logtext"></pre>
+          </label>
+        </form>
+        <hr />
+        <form method="dialog">
+          <label
+            >Transaction ID
+            <pre><code data-id="txid">&nbsp;</code></pre>
+          </label>
+          <label
+            >Transaction Hex
+            <pre><code data-id="txhex">&nbsp;</code></pre>
+          </label>
+          <details>
+            <summary>Transaction JSON</summary>
+            <pre><code data-id="txjson">&nbsp;</code></pre>
+          </details>
+          <label
+            >Governance Object ID
+            <pre><code data-id="gobjid">&nbsp;</code></pre>
+          </label>
+          <label
+            >Governance Object Hex
+            <pre><code data-id="gobjhex">&nbsp;</code></pre>
+          </label>
+          <details>
+            <summary>Governance Object JSON</summary>
+            <pre><code data-id="gobjjson">&nbsp;</code></pre>
+          </details>
+        </form>
+      </section>
+      <section>
+        <header>
+          <h3>Advanced Settings</h3>
+        </header>
+        <form method="dialog">
+          <label
+            >Network
+            <small>DASH only</small>
+            <br />
+            <label style="display: inline-block"
+              ><input
+                type="radio"
+                name="dash-network"
+                value="mainnet"
+                onchange="
+                    document.querySelector('[name=burnWif]').placeholder = 'ex: XK5DHnAiSj6HQNsNcDkawd9qdp8UFMdYftdVZFuRreTMJtbJhk8i';
+                    document.querySelector('[name=paymentAddress]').placeholder = 'ex: XyBmeuLa8y3D3XmzPvCTj5PVh7WvMPkLn1';
+                    document.querySelector('[name=rpcUrl]').placeholder = 'ex: https://api:null@rpc.digitcash.dev:443/';
+                    ProposalApp.$setNetwork('mainnet');
+                "
+                checked="checked"
+              />
+              mainnet
+            </label>
+            <label style="display: inline-block"
+              ><input
+                type="radio"
+                name="dash-network"
+                value="testnet"
+                onchange="
+                    document.querySelector('[name=burnWif]').placeholder = 'ex: cS3PYan28pAnfZ8St6braMrhb61wosv8AQKWpUnEhSKVrqVvSR8p';
+                    document.querySelector('[name=paymentAddress]').placeholder = 'ex: yh82paUZiCxwrWkXZHygjgMbCB2ovHGRX7'
+                    document.querySelector('[name=rpcUrl]').placeholder = 'ex: https://api:null@trpc.digitcash.dev:443/';
+                    ProposalApp.$setNetwork('testnet');
+                "
+              />
+              testnet
+            </label>
+          </label>
+          <label
+            >RPC URL
+            <small>to fetch and submit data</small>
+            <input
+              type="url"
+              name="rpcUrl"
+              placeholder="ex: https://api:null@rpc.digitcash.dev:443"
+              onchange="ProposalApp.$updateRpcUrl();"
+            />
+          </label>
+        </form>
+      </section>
+      <footer>
+        <hr />
+        <p>
+          © Dash Developers
+          <a href="https://digitalcash.dev" target="_blank">DigitalCash.Dev</a
+          ><br />
+        </p>
+      </footer>
+    </main>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@dashincubator/secp256k1": "./node_modules/@dashincubator/secp256k1/secp256k1.js",
+          "dashgov": "./node_modules/dashgov/dashgov.js",
+          "dashkeys": "./node_modules/dashkeys/dashkeys.js",
+          "dashtx": "./node_modules/dashtx/dashtx.js",
+          "qr-svg": "./node_modules/qrcode-svg/dist/qrcode.min.js"
+        }
+      }
+    </script>
+    <script type="module">
+      window.onerror = function (message, source, lineno, colno, error) {
+        let msg = error.message || message;
+        window.alert(`Error:\n${msg}`);
+      };
+      window.onunhandledrejection = function (ev) {
+        let msg = ev.reason.message;
+        window.alert(`Error:\n${msg}`);
+      };
+      document.body.removeAttribute("hidden");
+      import ProposalApp from "./proposal-app.js";
+      window.ProposalApp = ProposalApp;
+      await ProposalApp.$setNetwork("mainnet");
+      await ProposalApp.$restore();
+      await ProposalApp.$total();
+      document.querySelector('[name="burnWif"]').type = "password";
+      //setInterval(ProposalApp.$checkBalance, 10000);
+    </script>
+  </body>
+</html>

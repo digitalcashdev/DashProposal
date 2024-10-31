@@ -395,26 +395,40 @@ ProposalApp.$checkBalance = async function () {
     return;
   }
 
+  // the human eye often can't even perceive changes that take less than 100ms
+  const MIN_VISUAL_TIME = 100;
+  // and the brain needs about 250ms to process what it has perceived
+  const MIN_COMPREHENSION_TIME = 250;
+
+  setTimeout(function () {
+    //@ts-expect-error
+    document.querySelector('[data-id="wifinfo"]').textContent = "";
+    //@ts-expect-error
+    document.querySelector('[data-id="wiftotal"]').textContent = `checking...`;
+  }, MIN_VISUAL_TIME);
+
   ProposalApp.utxos = await ProposalApp.rpc("getaddressutxos", {
     addresses: [burnAddr],
   });
 
-  let utxosJSON = JSON.stringify(ProposalApp.utxos, null, 2);
-  //@ts-expect-error
-  document.querySelector('[data-id="wifinfo"]').textContent = utxosJSON;
+  setTimeout(function () {
+    let utxosJSON = JSON.stringify(ProposalApp.utxos, null, 2);
+    //@ts-expect-error
+    document.querySelector('[data-id="wifinfo"]').textContent = utxosJSON;
 
-  let total = DashTx.sum(ProposalApp.utxos);
-  let amountF = total / DashTx.SATOSHIS;
-  amountF = amountF * 1000;
-  amountF = Math.floor(amountF);
-  amountF = amountF / 1000;
+    let total = DashTx.sum(ProposalApp.utxos);
+    let amountF = total / DashTx.SATOSHIS;
+    amountF = amountF * 1000;
+    amountF = Math.floor(amountF);
+    amountF = amountF / 1000;
 
-  let dust = total % 100000;
+    let dust = total % 100000;
 
-  let amount = amountF.toFixed(3);
-  //@ts-expect-error
-  document.querySelector('[data-id="wiftotal"]').textContent =
-    `${amount} DASH + ${dust} dust`;
+    let amount = amountF.toFixed(3);
+    //@ts-expect-error
+    document.querySelector('[data-id="wiftotal"]').textContent =
+      `${amount} DASH + ${dust} dust`;
+  }, MIN_VISUAL_TIME + MIN_COMPREHENSION_TIME);
 };
 
 /**

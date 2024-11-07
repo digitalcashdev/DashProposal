@@ -112,9 +112,9 @@ ProposalApp.$parse = function () {
 
   /** @type {any} */
   let values = Object.fromEntries(formData);
-  let index = parseInt(values.index, 10);
-  let count = parseInt(values.count, 10);
-  let paymentAmount = parseInt(values.paymentAmount, 10);
+  let index = parseInt(values.index || "1", 10);
+  let count = parseInt(values.count || "1", 10);
+  let paymentAmount = parseInt(values.paymentAmount || "1", 10);
   let wif = values.burnWif;
 
   let networkInfo = ProposalApp.testnet;

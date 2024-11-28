@@ -161,8 +161,7 @@ ProposalApp.$restore = async function () {
   let burnAddr = await DashKeys.wifToAddr(oldWif, {
     version: ProposalApp.network,
   });
-  //@ts-expect-error
-  document.querySelector("[data-id=burnAddr]").textContent = burnAddr;
+  dbSet(`wif-${ProposalApp.network}-${burnAddr}`, oldWif);
 
   let addrQr = new QRCode({
     content: `dash:${burnAddr}?amount=1.00000250`,
@@ -174,15 +173,20 @@ ProposalApp.$restore = async function () {
     ecl: "M",
   });
   let addrSvg = addrQr.svg();
+  let oldDraft = dbGet(`submission-latest`);
+
+  //@ts-expect-error
+  document.querySelector('[name="burnWif"]').type = "password";
+  //@ts-expect-error
+  document.querySelector("[data-id=burnAddr]").textContent = burnAddr;
+
   //@ts-expect-error
   document.querySelector("[data-id=addressQr").innerHTML = addrSvg;
 
-  dbSet(`wif-${ProposalApp.network}-${burnAddr}`, oldWif);
   //@ts-expect-error
-  document.querySelector("[name=burnWif]").value = oldWif;
-  await ProposalApp.$checkBalance();
+  document.querySelector('[name="burnWif"]').value = oldWif;
+  void ProposalApp.$checkBalance();
 
-  let oldDraft = dbGet(`draft-latest`);
   if (!oldDraft?.gobjData?.count) {
     return;
   }
@@ -495,14 +499,14 @@ ProposalApp.$submit = async function (event) {
     return;
   }
 
-  let sameDraft = dbGet(`draft-${draft.gobjid}`);
+  let sameDraft = dbGet(`submission-${draft.gobjid}`);
   if (!sameDraft) {
     sameDraft = Object.assign(draft, {
       index: proposalDraft.index,
       count: proposalDraft.count,
     });
-    dbSet(`draft-${draft.gobjid}`, sameDraft);
-    dbSet("draft-latest", sameDraft);
+    dbSet(`submission-${draft.gobjid}`, sameDraft);
+    dbSet("submission-latest", sameDraft);
   }
   draft = sameDraft;
 
@@ -522,6 +526,7 @@ ProposalApp.$submit = async function (event) {
   window.alert(
     `Sucess!\nIt may take a few hours to show up on Dash Central, etc.`,
   );
+  dbSet(`wif-${ProposalApp.network}-latest`, "");
 };
 
 /**
@@ -1107,10 +1112,10 @@ ProposalApp._$fullSubmit = async function (draft) {
     let isoTime = d.toISOString();
 
     Object.assign(draft, { txsent: isoTime });
-    $log.textContent += `saving to localStorage as 'draft-${draft.gobjid}'\n`;
-    dbSet(`draft-${draft.gobjid}`, draft);
-    $log.textContent += `saving to localStorage as 'draft-latest'\n`;
-    dbSet("draft-latest", draft);
+    $log.textContent += `saving to localStorage as 'submission-${draft.gobjid}'\n`;
+    dbSet(`submission-${draft.gobjid}`, draft);
+    $log.textContent += `saving to localStorage as 'submission-latest'\n`;
+    dbSet("submission-latest", draft);
   }
 
   $log.textContent += `checking for confirmation of '${draft.txid}'...\n`;
@@ -1200,10 +1205,10 @@ ProposalApp._$fullSubmit = async function (draft) {
         gobjsent: isoTime,
         gobjResult: gobjResult,
       });
-      $log.textContent += `updating 'draft-${draft.gobjid}' in localStorage\n`;
-      dbSet(`draft-${draft.gobjid}`, draft);
-      $log.textContent += `updating 'draft-latest' in localStorage\n`;
-      dbSet("draft-latest", draft);
+      $log.textContent += `updating 'submission-${draft.gobjid}' in localStorage\n`;
+      dbSet(`submission-${draft.gobjid}`, draft);
+      $log.textContent += `updating 'submission-latest' in localStorage\n`;
+      dbSet("submission-latest", draft);
       break;
     }
 
